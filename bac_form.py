@@ -69,7 +69,7 @@ class view_bacs(wx.Frame):
 class bacs(wx.Frame):
     '''main application frame'''
     def __init__(self, parent, id):
-        wx.Frame.__init__(self, parent, id,  'BACs', size =(600, 400), style = wx.DEFAULT_FRAME_STYLE)
+        wx.Frame.__init__(self, parent, id,  'BACs', size = (600, 400), style = wx.DEFAULT_FRAME_STYLE)
         self.__do_layout()
         self.__do_binding()
 
@@ -83,13 +83,13 @@ class bacs(wx.Frame):
         bac_date = self.bac_date = wx.DatePickerCtrl(panel, size=(120,-1), style=wx.DP_DROPDOWN | wx.DP_SHOWCENTURY)
         
         #setup of window elements
-        clone = self.clone = wx.TextCtrl(panel, -1, '', size=(100, -1))
-        source = self.source = wx.TextCtrl(panel, -1, '', size=(100, -1))
-        projects = self.projects = wx.TextCtrl(panel, -1, '', size=(100, -1))
-        chromosome = self.chromo = wx.TextCtrl(panel, -1, '', size=(100, -1))
-        start = self.start = wx.TextCtrl(panel, -1, '', size=(100, -1))
-        end = self.end = wx.TextCtrl(panel, -1, '', size=(100, -1))
-        gene = self.gene = wx.TextCtrl(panel, -1, '', size=(100, -1))
+        clone = self.clone = wx.TextCtrl(panel, -1, '', size = (100, -1))
+        source = self.source = wx.TextCtrl(panel, -1, '', size = (100, -1))
+        projects = self.projects = wx.TextCtrl(panel, -1, '', size = (100, -1))
+        chromosome = self.chromo = wx.TextCtrl(panel, -1, '', size = (100, -1))
+        start = self.start = wx.TextCtrl(panel, -1, '', size = (100, -1))
+        end = self.end = wx.TextCtrl(panel, -1, '', size = (100, -1))
+        gene = self.gene = wx.TextCtrl(panel, -1, '', size = (100, -1))
         dna = self.dna = wx.CheckBox(panel, -1, " DNA extraction")
         validation = self.validation = wx.CheckBox(panel, -1, " FISH")
         pcr = self.pcr = wx.CheckBox(panel, -1, " PCR")       

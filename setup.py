@@ -7,13 +7,14 @@
 # Let's start with some default (for me) imports...
 
 from distutils.core import setup
-import py2exe
 import glob
 import os
-import zlib
-import shutil
+import sys
 
-shutil.rmtree("build", ignore_errors=True)
+if not sys.platform == 'darwin':
+    import py2exe
+else:
+    import py2app
 
 
 manifest_template = """
@@ -96,29 +97,49 @@ test_wx = Target(
 # That's serious now: we have all (or almost all) the options py2exe
 # supports. I put them all even if some of them are usually defaulted
 # and not used. Some of them I didn't even know about.
+if not sys.platform == 'darwin': 
+    setup(
 
-setup(
+        data_files = data_files,
 
-    data_files = data_files,
+        options = {"py2exe": {"compressed": 0, 
+                              "optimize": 0,
+                              "includes": includes,
+                              "excludes": excludes,
+                              "packages": packages,
+                              "dll_excludes": dll_excludes,
+                              "bundle_files": 1,
+                              "dist_dir": "dist",
+                              "xref": False,
+                              "skip_archive": False,
+                              "ascii": False,
+                              "custom_boot_script": '',
+                             }
+                  },
 
-    options = {"py2exe": {"compressed": 0, 
-                          "optimize": 0,
-                          "includes": includes,
-                          "excludes": excludes,
-                          "packages": packages,
-                          "dll_excludes": dll_excludes,
-                          "bundle_files": 1,
-                          "dist_dir": "dist",
-                          "xref": False,
-                          "skip_archive": False,
-                          "ascii": False,
-                          "custom_boot_script": '',
-                         }
-              },
-
-    zipfile = None,
-    windows = [test_wx]
+        zipfile = None,
+        windows = [test_wx]
     
+        )
+else:
+    setup(
+        options=dict(
+            py2app=dict(
+                iconfile='',
+                packages='wx',
+                site_packages=False,
+                excludes=excludes,
+                resources=[],
+                plist=dict(
+                    CFBundleName               = "Bac",
+                    CFBundleShortVersionString = "0.0.1",     # must be in X.X.X format
+                    CFBundleGetInfoString      = "Bac 0.0.1",
+                    CFBundleExecutable         = "Bac",
+                    CFBundleIdentifier         = "com.example.bac",
+                ),
+            ),
+        ),
+        app=[ 'bac_form.py' ]
     )
-
+    
 
