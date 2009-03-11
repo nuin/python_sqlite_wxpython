@@ -77,38 +77,3 @@ def link_db():
 
     db_cursor = db.cursor()
     return db_cursor, db
-
-
-#    def get_some_data(self):
-#        conn = sqlite3.connect('samples.db')
-#        c = conn.cursor()
-#        c.execute('select * from bac')
-#        a = []
-##        bac_date = wx.DatePickerCtrl(panel, size=(120,-1), style=wx.DP_DROPDOWN | wx.DP_SHOWCENTURY)
-##        clone = wx.TextCtrl(panel, -1, '', size=(100, 18))
-##        source = wx.TextCtrl(panel, -1, '', size=(100, 18))
-##        location = wx.TextCtrl(panel, -1, '', size=(100, 18))
-##        start = wx.TextCtrl(panel, -1, '', size=(100, 18))
-##        end = wx.TextCtrl(panel, -1, '', size=(100, 18))
-##        gene = wx.TextCtrl(panel, -1, '', size=(100, 18))
-##        dna = wx.CheckBox(panel, -1, " DNA extraction")
-##        validation = wx.CheckBox(panel, -1, " FISH")
-##        pcr = wx.CheckBox(panel, -1, " PCR")    
-##        
-#        
-#        for i in c:
-#            print i
-#            a.append(i[1].encode())
-#
-#        
-#        print a[0]
-#        
-##        metadata = MetaData(bind = db, reflect = True)
-##        dbo = Table('bac', metadata, autoload = True)
-##        s = dbo.select()
-##        g.table_data = s.execute()
-##        my_data = g.table_data.fetchall()
-##        print g.table_data.fetchall()
-###        for i in range(len(my_data)):
-###            for j in range(len(my_data[i])):
-###                print my_data[i][j]
