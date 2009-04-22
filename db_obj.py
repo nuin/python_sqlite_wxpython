@@ -15,7 +15,6 @@ class DB_Generic():
     def get_data_generic(self, range = 1, bac_to_get = 0):
         '''gets the data from the database
         generic so far, needs to be updated to include range'''        
-        
 
         if sys.platform == 'darwin':
             (cursor, database) = link_db(self.db_path)
