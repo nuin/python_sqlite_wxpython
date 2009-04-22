@@ -129,7 +129,7 @@ else:
                 packages='wx',
                 site_packages=False,
                 excludes=excludes,
-                resources=[],
+                resources=['db.txt', 'db_obj.py'],
                 plist=dict(
                     CFBundleName               = "Bac",
                     CFBundleShortVersionString = "0.0.1",     # must be in X.X.X format

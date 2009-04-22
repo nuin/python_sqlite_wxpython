@@ -6,6 +6,8 @@ import sys
 import db_obj
 import wx.grid as gridlib
 
+db_path = ''
+
 class bac_form(wx.App):
     '''main class for the GUI application '''
     def __init__(self, redirect=False, filename=None):
@@ -53,6 +55,8 @@ class bac_grid(gridlib.Grid):
             for i, j in enumerate(bac_data):
                 for m, n in enumerate(j):
                     self.SetCellValue(i, m, str(n))
+                    self.SetReadOnly(i, m, True)
+
         else:
             wx.MessageBox("There is nothing in the database.\nTry adding something first")
 
@@ -61,10 +65,93 @@ class view_bacs(wx.Frame):
     def __init__(self, parent, id, title, pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_FRAME_STYLE):
         wx.Frame.__init__(self, parent, id, title, pos, size, style)
         self.__do_layout()
+        self.__do_binding()
+        
+        self.grid_row = 0
         
     def __do_layout(self):
         '''creates the layout'''
         self.bac_list = bac_grid(self)
+
+    def __do_binding(self):
+        self.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.on_rightclick)
+
+    def on_rightclick(self, event):
+        
+        self.grid_row = event.GetRow()
+        
+        self.popup_id1 = wx.NewId()
+        self.popup_id2 = wx.NewId()
+        
+        self.Bind(wx.EVT_MENU, self.on_edit, id=self.popup_id1)
+        self.Bind(wx.EVT_MENU, self.on_delete, id=self.popup_id2)
+        
+        menu = wx.Menu()
+        item = wx.MenuItem(menu, self.popup_id1, 'Edit')
+        item2 = wx.MenuItem(menu, self.popup_id2, 'Delete')
+        
+        menu.AppendItem(item)
+        menu.AppendItem(item2)
+        
+        self.PopupMenu(menu)
+        menu.Destroy()
+        
+    def on_edit(self, event):
+        
+        for i in range(1, self.bac_list.GetNumberCols()):
+            self.bac_list.SetReadOnly(self.grid_row, i, False)
+        
+        menu = wx.Menu()
+        self.save_edit = menu.Append(-1, 'Save changes', '')
+        self.menubar = wx.MenuBar()
+        self.menubar.Append(menu, 'Save')
+        self.SetMenuBar(self.menubar)
+        self.Bind(wx.EVT_MENU, self.edit_values, self.save_edit)
+        
+        
+    def edit_values(self, event):
+        values_list = {}
+        
+        values_list['idbac'] = self.bac_list.GetCellValue(self.grid_row, 0)
+        values_list['clone'] = self.bac_list.GetCellValue(self.grid_row, 1)
+        values_list['sdate'] = self.bac_list.GetCellValue(self.grid_row, 2)
+        values_list['source'] = self.bac_list.GetCellValue(self.grid_row, 3)
+        values_list['gene'] = self.bac_list.GetCellValue(self.grid_row, 4)
+        values_list['chromosome'] = self.bac_list.GetCellValue(self.grid_row, 5)
+        values_list['startpos'] = int(self.bac_list.GetCellValue(self.grid_row, 6))
+        values_list['endpos'] = int(self.bac_list.GetCellValue(self.grid_row, 7)) 
+        values_list['antibiotic'] = self.bac_list.GetCellValue(self.grid_row, 8)
+        values_list['location1'] = self.bac_list.GetCellValue(self.grid_row, 9)
+        
+        try:
+            values_list['temperature'] = int(self.bac_list.GetCellValue(self.grid_row, 10))
+        except:
+            values_list['temperature'] = 'None'
+        
+        values_list['tubes'] = int(self.bac_list.GetCellValue(self.grid_row, 11))
+        values_list['box'] = int(self.bac_list.GetCellValue(self.grid_row, 12))
+        values_list['cell'] = self.bac_list.GetCellValue(self.grid_row, 13)
+        values_list['dnaex'] = self.bac_list.GetCellValue(self.grid_row, 14)
+        values_list['validation'] = self.bac_list.GetCellValue(self.grid_row, 15)
+        values_list['pcr'] = self.bac_list.GetCellValue(self.grid_row, 16)
+        values_list['projects'] = self.bac_list.GetCellValue(self.grid_row, 17)
+        values_list['comments'] = self.bac_list.GetCellValue(self.grid_row, 18)  
+        values_list['genelink'] = self.bac_list.GetCellValue(self.grid_row, 19)                     
+        values_list['refs'] = self.bac_list.GetCellValue(self.grid_row, 20)
+        
+        for i in range(1, self.bac_list.GetNumberCols()):
+            self.bac_list.SetReadOnly(self.grid_row, i, True)
+        
+        db_test.edit_data(values_list)
+
+    def on_delete(self, event):
+        idbac = self.bac_list.GetCellValue(self.grid_row, 0)
+        
+        db_test.delete_entry(idbac)
+        
+        wx.MessageBox("Bac with id " + idbac + " was deleted")
+        
+        self.bac_list.DeleteRows(self.grid_row)
 
 class bacs(wx.Frame):
     '''main application frame'''
@@ -191,19 +278,12 @@ class bacs(wx.Frame):
         self.forward.Enable(True)
         self.a = self.load_data_box()
         b = self.a.next()
-        
-        print b
-
-    def move_forward(self, event):
-        '''deprecated'''
-        b = self.a.next()
-        print b
 
     def add_values(self, event):
         '''insert a value in the database'''
         not_exec = False
         values_list = {}
-        
+
         values_list['projects'] = str(self.projects.GetValue())
         values_list['comments'] = str(self.comments.GetValue())
         try:
@@ -221,37 +301,39 @@ class bacs(wx.Frame):
             not_exec = True
 
         values_list['tubes'] = int(self.tubes.GetValue())
-        values_list['chromo'] = str(self.chromo.GetValue())
+        values_list['chromosome'] = str(self.chromo.GetValue())
         values_list['antibiotic'] = str(self.anti.GetValue())
-        values_list['date'] = str(self.bac_date.GetValue())
+        values_list['sdate'] = str(self.bac_date.GetValue())
         values_list['clone'] = str(self.clone.GetValue())
         values_list['source'] = str(self.source.GetValue())   
         try:
-            values_list['location'] = str(self.location.GetValue())
+            values_list['location1'] = str(self.location.GetValue())
         except:
             wx.MessageBox('Please select a location')
             not_exec = True
         
         try:
-            values_list['start'] = int(self.start.GetValue())
+            values_list['startpos'] = int(self.start.GetValue())
         except:
             values_list.append(0)
             
         try:
-            values_list['end'] = int(self.end.GetValue())
+            values_list['endpos'] = int(self.end.GetValue())
         except:
             values_list.append(0)
         
         values_list['gene'] = str(self.gene.GetValue())
         values_list['genelink'] = ''
-#        
-        values_list['dna'] = self.dna.GetValue()
+  
+        values_list['dnaex'] = self.dna.GetValue()
         values_list['validation'] = self.validation.GetValue()
         values_list['pcr'] = self.pcr.GetValue()
         values_list['refs'] = ''
         
         if not_exec == False:
             db_test.add_data(values_list)
+            
+        self.on_cancel(wx.EVT_BUTTON)
 
     def on_cancel(self, event):
         self.clone.SetValue('')
@@ -279,38 +361,14 @@ class bacs(wx.Frame):
 
 if __name__ == '__main__':
     
-    db_test = db_obj.Bac('bac')
+    if sys.platform == 'darwin':
+        db_path = open('db.txt').readlines()[0].strip()
+        db_test = db_obj.Bac('bac', db_path)
+    else:
+        db_test = db_obj.Bac('bac')
 
-    app = bac_form(redirect=False)
+    app = bac_form(redirect = False)
     frame = bacs(parent=None, id = -1)
     frame.CentreOnScreen()
     frame.Show()
     app.MainLoop()
-    
-    
-    
-    
-#        metadata = MetaData(db)
-#    #accessing the defined table
-#    dbo = Table('bac', metadata, autoload = True )
-#    #selecting all data from the database
-#    s = dbo.select()
-#
-#    g = db_table('bac')
-#    g.table_data = s.execute()
-#    g.print_data()
-    
-        #load_button = self.load_button = wx.Button(panel, -1, "Load", size = (120, 30))
-        #forward_button = self.forward = wx.Button(panel, -1, ">>" , size = (60, 30))
-        #back_button = self.back = wx.Button(panel, -1, "<<", size = (60, 30))
-        
-                #self.Bind(wx.EVT_BUTTON, self.on_load_data, self.load_button)
-        #self.Bind(wx.EVT_BUTTON, self.move_forward, self.forward)
-        
-        
-                #back_button.Enable(False)
-        #forward_button.Enable(False)
-        
-                #my_sizer.Add(load_button, (11, 3), (2, 1))
-        #my_sizer.Add(forward_button, (11, 5), (2, 1), wx.ALIGN_LEFT)
-        #my_sizer.Add(back_button, (11, 4), (1, 1), wx.ALIGN_RIGHT)
